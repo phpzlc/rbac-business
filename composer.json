@@ -1,0 +1,27 @@
+{
+  "name": "phpzlc/RBAC-business",
+  "description": "权限与角色组件",
+  "license": "MIT",
+  "type": "library",
+  "keywords": [
+    "phpzlc",
+    "RBAC",
+    "symfony"
+  ],
+  "homepage": "",
+  "authors": [
+    {
+      "name": "ExodusHT",
+      "email": "1847944340@qq.com",
+      "role": "Developer"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "PHPZlc\\RBACBusiness\\": "src/"
+    }
+  },
+  "require": {
+    "phpzlc/phpzlc": "1.*"
+  }
+}
