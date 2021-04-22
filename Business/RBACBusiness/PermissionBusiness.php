@@ -1,12 +1,5 @@
 <?php
-/**
- * PhpStorm.
- * User: Jay
- * Date: 2020/11/9
- */
-
 namespace App\Business\RBACBusiness;
-
 
 use App\Entity\Permission;
 use Doctrine\DBAL\Connection;
@@ -22,10 +15,10 @@ class PermissionBusiness extends AbstractBusiness
      * 可以通过路由配置权限；
      * 在路由下方追加
     options:
-        platform: platform
-        permission_group: 权限分组
-        permission_tag: 权限标识
-        permission_description: 权限描述
+    platform: platform
+    permission_group: 权限分组
+    permission_tag: 权限标识
+    permission_description: 权限描述
      *
      * @return array[]
      */
@@ -51,11 +44,11 @@ class PermissionBusiness extends AbstractBusiness
                     'platform' => $class->getPlatform(),
                     'data_version' => $class->getDataVersion()
                 ]);
+            }
 
-                if(!empty($permission)){
-                    if($class->getId() != $permission->getId()){
-                        Errors::setErrorMessage('角色标识已存在'); return false;
-                    }
+            if(!empty($permission)){
+                if($class->getId() != $permission->getId()){
+                    Errors::setErrorMessage('角色标识已存在'); return false;
                 }
             }
 
@@ -68,7 +61,8 @@ class PermissionBusiness extends AbstractBusiness
     public function builtUpdatePermission()
     {
         //一个路由可以绑定到多个权限上去
-        //一个路由只能绑定一个页面标识；页面本身的路由名就是其页面标识;
+        //一个路由只能绑定一个页面标识；页面本身的路由名就是其页面标识
+
         $data_version = time();
         $permissionRepository = $this->getDoctrine()->getRepository('App:Permission');
 
@@ -87,6 +81,7 @@ class PermissionBusiness extends AbstractBusiness
 
             //读取路由中的配置文件
             $routeCollection = $this->get('router')->getRouteCollection();
+
             foreach ($routeCollection->all() as $route_name => $route){
                 $permission_tag = $route->hasOption('permission_tag') ? $route->getOption('permission_tag') : '';
                 $permission_description = $route->hasOption('permission_description') ? $route->getOption('permission_description') : '';
@@ -97,6 +92,7 @@ class PermissionBusiness extends AbstractBusiness
                     if(empty($permission_tag)){
                         Errors::setErrorMessage('路由定义权限缺少 option permission_tag to' . $route_name); return false;
                     }
+
                     if(array_key_exists($permission_tag, $permissions)){
                         $permission = $permissions[$permission_tag];
                     }else{
@@ -105,6 +101,7 @@ class PermissionBusiness extends AbstractBusiness
                             $permission = new Permission();
                             $this->em->persist($permission);
                         }
+
                         $permission->setPlatform($platform);
                         $permission->setGroupName($permission_group);
                         $permission->setTag($permission_tag);
@@ -119,7 +116,9 @@ class PermissionBusiness extends AbstractBusiness
                         return false;
                     }
                 }
+
             }
+
             unset($permissions);
 
             //读取内置权限
@@ -129,6 +128,7 @@ class PermissionBusiness extends AbstractBusiness
                     $permission = new Permission();
                     $this->em->persist($permission);
                 }
+
                 $permission->setPlatform($builtPermission['platform']);
                 $permission->setGroupName($builtPermission['permission_group']);
                 $permission->setTag($builtPermission['permission_tag']);
@@ -139,25 +139,28 @@ class PermissionBusiness extends AbstractBusiness
                 if(!$this->validator($permission)){
                     return false;
                 }
+
             }
 
             $this->em->flush();
             $this->em->clear();
 
+
             //查询数据库中版本值不对的规则进行删除
             $del_permissions = $permissionRepository->findAll([
-                'dataVersion'. Rule::RA_CONTRAST => ['<>', $data_version]
+               'dataVersion' . Rule::RA_CONTRAST => ['<>', $data_version]
             ]);
 
             $roleRepository = $this->getDoctrine()->getRepository('App:Role');
             $roleBusiness = new RoleBusiness($this->container);
 
             foreach ($del_permissions as $del_permission){
-                //获取该权限在哪些角色中使用；如果有使用情况就移除
+                //获取该权限在哪些角色中使用;如果有使用情况就移除
                 $roles = $roleRepository->findAll(['permission_ids' . Rule::RA_LIKE => $del_permission->getId()]);
                 foreach ($roles as $role){
                     $roleBusiness->removePermission($role, $del_permission, false);
                 }
+
                 $this->em->remove($del_permission);
             }
 
@@ -167,6 +170,7 @@ class PermissionBusiness extends AbstractBusiness
             $conn->commit();
 
             return true;
+
         } catch (\Exception $exception){
             $conn->rollBack();
             $this->networkError($exception);

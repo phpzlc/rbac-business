@@ -1,12 +1,6 @@
 <?php
-/**
- * PhpStorm.
- * User: Jay
- * Date: 2020/11/9
- */
 
 namespace App\Business\RBACBusiness;
-
 
 use App\Entity\Permission;
 use App\Entity\Role;
@@ -19,31 +13,30 @@ class RoleBusiness extends AbstractBusiness
     public function validator($class): bool
     {
         if(parent::validator($class)){
-            if($class instanceof Role){
-                $roleId = $this->getDoctrine()->getRepository('App:Role')->findAssoc([
-                    'tag' => $class->getTag(),
-                    'platform' => $class->getPlatform()
-                ]);
+           if($class instanceof Role){
+               $roleId = $this->getDoctrine()->getRepository('App:Role')->findAssoc([
+                  'tag' => $class->getTag(),
+                  'platform' => $class->getPlatform()
+               ]);
 
-                if(!empty($roleId) && $roleId->getId() != $class->getId()){
-                    Errors::setErrorMessage('角色标识已存在'); return false;
-                }
+               if(!empty($roleId) && $roleId->getId() != $class->getId()){
+                   Errors::setErrorMessage('角色标识已存在'); return false;
+               }
 
-                $role = $this->getDoctrine()->getRepository('App:Role')->findAssoc(['name' => $class->getName()]);
+               $role = $this->getDoctrine()->getRepository('App:Role')->findAssoc(['name' => $class->getName()]);
 
-                if(!empty($role) && $role->getId() != $class->getId()){
-                    Errors::setErrorMessage('角色名称已存在');
-                    return false;
-                }
-            }
+               if(!empty($role) && $role->getId() != $class->getId()){
+                   Errors::setErrorMessage('角色名称已存在'); return false;
+               }
+           }
 
-            return true;
+           return true;
         }
 
         return false;
     }
 
-    public function create(Role $role , $is_flush = true)
+    public function create(Role $role, $is_flush = true)
     {
         if(!$this->validator($role)){
             return false;
@@ -51,7 +44,7 @@ class RoleBusiness extends AbstractBusiness
 
         $this->em->persist($role);
 
-        if($is_flush) {
+        if($is_flush){
             $this->em->flush();
             $this->em->clear();
         }
@@ -65,7 +58,7 @@ class RoleBusiness extends AbstractBusiness
             return false;
         }
 
-        if($is_flush) {
+        if($is_flush){
             $this->em->flush();
             $this->em->clear();
         }
@@ -76,8 +69,7 @@ class RoleBusiness extends AbstractBusiness
     public function addContainRole(Role $role, Role $containRole, $is_flush = true)
     {
         if($containRole->getPlatform() != $role->getPlatform()){
-            Errors::setErrorMessage('不同平台的权限不能公用');
-            return false;
+            Errors::setErrorMessage('不同平台的权限不能公用'); return false;
         }
 
         $roleIds = $role->getContainRoleIds();
@@ -89,7 +81,7 @@ class RoleBusiness extends AbstractBusiness
 
         $role->setContainRoleIds($roleIds);
 
-        if($is_flush) {
+        if($is_flush){
             $this->em->flush();
             $this->em->clear();
         }

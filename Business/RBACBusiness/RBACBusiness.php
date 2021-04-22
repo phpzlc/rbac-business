@@ -1,17 +1,11 @@
 <?php
-/**
- * PhpStorm.
- * User: Jay
- * Date: 2020/11/11
- */
 
 namespace App\Business\RBACBusiness;
 
-use App\Business\UserAuthBusiness\CurAuthSubject;
+use App\Business\AuthBusiness\CurAuthSubject;
 use App\Entity\Role;
 use App\Entity\UserAuth;
 use App\Entity\UserAuthRole;
-use PHPZlc\Admin\Strategy\Menu;
 use PHPZlc\PHPZlc\Abnormal\PHPZlcException;
 use PHPZlc\PHPZlc\Bundle\Business\AbstractBusiness;
 use PHPZlc\PHPZlc\Doctrine\ORM\Rule\Rule;
@@ -41,21 +35,30 @@ class RBACBusiness extends AbstractBusiness
         return $this->isSuper;
     }
 
-    /**
-     * @param UserAuth $userAuth
-     * @param bool $refresh_cache 是否刷新缓存
-     * @return array[]
-     */
+    private function getUserAuth(UserAuth $userAuth = null)
+    {
+        if(empty($userAuth)){
+            $userAuth = CurAuthSubject::getCurUserAuth();
+        }
+
+        if(empty($userAuth)){
+            throw new PHPZlcException('不能对空用户鉴权');
+        }
+
+        return $userAuth;
+    }
+
+
     public function getUserAllPermissions(UserAuth $userAuth = null, $refresh_cache = false)
     {
-        $userAuth = $this->getUserAuth($userAuth);
-
         if(!$refresh_cache) {
             $cache = $this->get('session')->get($this->getCacheSessionName($userAuth));
             if (!empty($cache)) {
                 return $cache;
             }
         }
+
+        $userAuth = $this->getUserAuth($userAuth);
 
         $roles = $this->getUserAllRoles($userAuth);
         $permissions = [];
@@ -79,10 +82,6 @@ class RBACBusiness extends AbstractBusiness
         return $permissions;
     }
 
-    /**
-     * @param UserAuth|null $userAuth
-     * @return Role[]
-     */
     public function getUserAllRoles(UserAuth $userAuth = null)
     {
         $userAuth = $this->getUserAuth($userAuth);
@@ -123,12 +122,6 @@ class RBACBusiness extends AbstractBusiness
         }
     }
 
-    /**
-     * 判断路由是否具有权限
-     * @param UserAuth|null $userAuth
-     * @param $route
-     * @return bool
-     */
     public function canRoute($route, UserAuth $userAuth = null)
     {
         $userAuth = $this->getUserAuth($userAuth);
@@ -146,14 +139,6 @@ class RBACBusiness extends AbstractBusiness
         }
     }
 
-    /**
-     * 判断是否拥有权限
-     *
-     * @param array|string $permissions
-     * @param string $model
-     * @param UserAuth|null $userAuth
-     * @return bool
-     */
     public function can($permissions, $model = 'and', UserAuth $userAuth = null)
     {
         $userAuth = $this->getUserAuth($userAuth);
@@ -162,7 +147,7 @@ class RBACBusiness extends AbstractBusiness
             throw new PHPZlcException('鉴权模式溢出, or 或者 and');
         }
 
-        if($this->isSuper){
+        if($this->getIsSuper()){
             return true;
         }
 
@@ -198,11 +183,6 @@ class RBACBusiness extends AbstractBusiness
         return 'hasPermissionCache' . $userAuth->getId() . $this->platform;
     }
 
-    /**
-     * @param $menus
-     * @param UserAuth|null $userAuth
-     * @return null|Menu[]
-     */
     public function menusFilter($menus, UserAuth $userAuth = null)
     {
         $userAuth = $this->getUserAuth($userAuth);
@@ -221,11 +201,11 @@ class RBACBusiness extends AbstractBusiness
             }
 
             if(!empty($menu->getChilds())){
-                $childs = $this->menusFilter($menu->getChilds(), $userAuth);
-                if(empty($childs)){
+                $children = $this->menusFilter($menu->getChilds(), $userAuth);
+                if(empty($children)){
                     unset($menus[$key]);
                 }else{
-                    $menu->setChilds($childs);
+                    $menu->setChilds($children);
                 }
             }
         }
@@ -233,20 +213,4 @@ class RBACBusiness extends AbstractBusiness
         return array_merge($menus);
     }
 
-    /**
-     * @param UserAuth|null $userAuth
-     * @return UserAuth
-     */
-    private function getUserAuth($userAuth)
-    {
-        if(empty($userAuth)){
-            $userAuth = CurAuthSubject::getCurUserAuth();
-        }
-
-        if(empty($userAuth)){
-            throw new PHPZlcException('不能对空用户鉴权');
-        }
-
-        return $userAuth;
-    }
 }

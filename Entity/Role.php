@@ -37,7 +37,6 @@ class Role
     private $name;
 
     /**
-     *
      * @Assert\NotBlank(message="所属平台不能为空")
      * @ORM\Column(name="platform", type="string", options={"comment":"平台"})
      */
