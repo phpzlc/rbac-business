@@ -1,5 +1,5 @@
 {
-  "name": "phpzlc/RBAC-business",
+  "name": "phpzlc/rbac-business",
   "description": "权限与角色组件",
   "license": "MIT",
   "type": "library",
