@@ -23,7 +23,10 @@ class RoleBusiness extends AbstractBusiness
                    Errors::setErrorMessage('角色标识已存在'); return false;
                }
 
-               $role = $this->getDoctrine()->getRepository('App:Role')->findAssoc(['name' => $class->getName()]);
+               $role = $this->getDoctrine()->getRepository('App:Role')->findAssoc([
+                   'name' => $class->getName(),
+                   'platform' => $class->getPlatform()
+               ]);
 
                if(!empty($role) && $role->getId() != $class->getId()){
                    Errors::setErrorMessage('角色名称已存在'); return false;
