@@ -122,6 +122,13 @@ class RBACBusiness extends AbstractBusiness
         }
     }
 
+    /**
+     * 验证路由是否有权限访问
+     *
+     * @param $route //  路由名
+     * @param UserAuth|null $userAuth //需要鉴权的用户,不传为当前登录用户
+     * @return bool
+     */
     public function canRoute($route, UserAuth $userAuth = null)
     {
         $userAuth = $this->getUserAuth($userAuth);
@@ -139,6 +146,14 @@ class RBACBusiness extends AbstractBusiness
         }
     }
 
+    /**
+     * 验证是否有权限
+     *
+     * @param $permissions //需要验证的权限标记,支持多个。可传数组或字符串。
+     * @param string $model //匹配模式 or 或者 and
+     * @param UserAuth|null $userAuth // 需要鉴权的用户,不传为当前登录用户
+     * @return bool
+     */
     public function can($permissions, $model = 'and', UserAuth $userAuth = null)
     {
         $userAuth = $this->getUserAuth($userAuth);
