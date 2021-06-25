@@ -51,6 +51,8 @@ class RBACBusiness extends AbstractBusiness
 
     public function getUserAllPermissions(UserAuth $userAuth = null, $refresh_cache = false)
     {
+        $userAuth = $this->getUserAuth($userAuth);
+
         if(!$refresh_cache) {
             $cache = $this->get('session')->get($this->getCacheSessionName($userAuth));
             if (!empty($cache)) {
@@ -58,9 +60,8 @@ class RBACBusiness extends AbstractBusiness
             }
         }
 
-        $userAuth = $this->getUserAuth($userAuth);
-
         $roles = $this->getUserAllRoles($userAuth);
+
         $permissions = [];
 
         foreach ($roles as $role){
@@ -122,15 +123,12 @@ class RBACBusiness extends AbstractBusiness
         }
     }
 
-    /**
-     * 验证路由是否有权限访问
-     *
-     * @param $route //  路由名
-     * @param UserAuth|null $userAuth //需要鉴权的用户,不传为当前登录用户
-     * @return bool
-     */
     public function canRoute($route, UserAuth $userAuth = null)
     {
+        if($this->getIsSuper()){
+            return true;
+        }
+
         $userAuth = $this->getUserAuth($userAuth);
 
         $route = $this->get('router')->getRouteCollection()->get($route);
@@ -146,24 +144,16 @@ class RBACBusiness extends AbstractBusiness
         }
     }
 
-    /**
-     * 验证是否有权限
-     *
-     * @param $permissions //需要验证的权限标记,支持多个。可传数组或字符串。
-     * @param string $model //匹配模式 or 或者 and
-     * @param UserAuth|null $userAuth // 需要鉴权的用户,不传为当前登录用户
-     * @return bool
-     */
     public function can($permissions, $model = 'and', UserAuth $userAuth = null)
     {
+        if($this->getIsSuper()){
+            return true;
+        }
+
         $userAuth = $this->getUserAuth($userAuth);
 
         if(!in_array($model, ['and', 'or'])){
             throw new PHPZlcException('鉴权模式溢出, or 或者 and');
-        }
-
-        if($this->getIsSuper()){
-            return true;
         }
 
         $userPermissions = $this->getUserAllPermissions($userAuth);
@@ -172,11 +162,11 @@ class RBACBusiness extends AbstractBusiness
             foreach ($permissions as $permission){
                 if(array_key_exists($permission, $userPermissions)) {
                     if($model == 'or'){
-                        true;
+                        return true;
                     }
                 }else{
                     if($model == 'and'){
-                        false;
+                        return false;
                     }
                 }
             }
@@ -191,6 +181,12 @@ class RBACBusiness extends AbstractBusiness
         }
     }
 
+    /**
+     * 得到权限缓存session名称
+     *
+     * @param UserAuth|null $userAuth
+     * @return string
+     */
     public function getCacheSessionName(UserAuth $userAuth = null)
     {
         $userAuth = $this->getUserAuth($userAuth);
@@ -198,9 +194,45 @@ class RBACBusiness extends AbstractBusiness
         return 'hasPermissionCache' . $userAuth->getId() . $this->platform;
     }
 
-    public function menusFilter($menus, UserAuth $userAuth = null)
+    /**
+     * 得到权限菜单缓存session名称
+     */
+    public function getCacheMenusSessionName(UserAuth $userAuth = null)
     {
         $userAuth = $this->getUserAuth($userAuth);
+
+        return 'hasPermissionMenusCache' . $userAuth->getId() . $this->platform;
+    }
+
+    /**
+     * 清除缓存
+     *
+     * @param UserAuth|null $userAuth
+     */
+    public function clearCache(UserAuth $userAuth = null)
+    {
+        $this->get('session')->remove($this->getCacheSessionName($userAuth));
+        $this->get('session')->remove($this->getCacheMenusSessionName($userAuth));
+    }
+
+    /**
+     * 菜单过滤
+     *
+     * @param $menus
+     * @param UserAuth|null $userAuth
+     * @param bool $refresh_cache
+     * @return array
+     */
+    public function menusFilter($menus, UserAuth $userAuth = null, $refresh_cache = false)
+    {
+        $userAuth = $this->getUserAuth($userAuth);
+
+        if(!$refresh_cache) {
+            $cache = $this->get('session')->get($this->getCacheMenusSessionName($userAuth));
+            if (!empty($cache)) {
+                return $cache;
+            }
+        }
 
         foreach ($menus as $key => $menu) {
             $path = str_replace($this->get('request_stack')->getCurrentRequest()->getBaseUrl(), "", parse_url($menu->getUrl(),PHP_URL_PATH ));
@@ -225,7 +257,10 @@ class RBACBusiness extends AbstractBusiness
             }
         }
 
-        return array_merge($menus);
-    }
+        $menus = array_merge($menus);
 
+        $this->get('session')->set($this->getCacheMenusSessionName($userAuth), $menus);
+
+        return $menus;
+    }
 }
