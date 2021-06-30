@@ -220,7 +220,7 @@ class RBACBusiness extends AbstractBusiness
      *
      * @param $menus
      * @param UserAuth|null $userAuth
-     * @param bool $refresh_cache
+     * @param false $refresh_cache
      * @return array
      */
     public function menusFilter($menus, UserAuth $userAuth = null, $refresh_cache = false)
@@ -233,6 +233,25 @@ class RBACBusiness extends AbstractBusiness
                 return $cache;
             }
         }
+
+        $menus = $this->menusFilterExec($menus, $userAuth);
+
+        $this->get('session')->set($this->getCacheMenusSessionName($userAuth), $menus);
+
+        return $menus;
+    }
+
+    /**
+     * 菜单过滤执行
+     *
+     * @param $menus
+     * @param UserAuth|null $userAuth
+     * @param bool $refresh_cache
+     * @return array
+     */
+    public function menusFilterExec($menus, UserAuth $userAuth = null)
+    {
+        $userAuth = $this->getUserAuth($userAuth);
 
         foreach ($menus as $key => $menu) {
             $path = str_replace($this->get('request_stack')->getCurrentRequest()->getBaseUrl(), "", parse_url($menu->getUrl(),PHP_URL_PATH ));
@@ -248,7 +267,7 @@ class RBACBusiness extends AbstractBusiness
             }
 
             if(!empty($menu->getChilds())){
-                $children = $this->menusFilter($menu->getChilds(), $userAuth);
+                $children = $this->menusFilterExec($menu->getChilds(), $userAuth);
                 if(empty($children)){
                     unset($menus[$key]);
                 }else{
@@ -258,8 +277,6 @@ class RBACBusiness extends AbstractBusiness
         }
 
         $menus = array_merge($menus);
-
-        $this->get('session')->set($this->getCacheMenusSessionName($userAuth), $menus);
 
         return $menus;
     }
