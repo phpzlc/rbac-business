@@ -43,7 +43,7 @@ class Permission
     private $groupName;
 
     /**
-     *  @ORM\Column(name="description", type="string", options={"comment":"权限描述不能为空"})
+     *  @ORM\Column(name="description", type="string", options={"comment":"权限描述"})
      */
     private $description;
 
