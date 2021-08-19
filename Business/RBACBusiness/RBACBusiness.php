@@ -3,6 +3,7 @@
 namespace App\Business\RBACBusiness;
 
 use App\Business\AuthBusiness\CurAuthSubject;
+use App\Entity\Permission;
 use App\Entity\Role;
 use App\Entity\UserAuth;
 use App\Entity\UserAuthRole;
@@ -131,16 +132,20 @@ class RBACBusiness extends AbstractBusiness
 
         $userAuth = $this->getUserAuth($userAuth);
 
-        $route = $this->get('router')->getRouteCollection()->get($route);
+        /**
+         * @var Permission $permission
+         */
+        $permission = $this->em->getRepository('App:Permission')->findAssoc(
+            [
+                'routes' . Rule::RA_LIKE => '%"' . $route .'"%',
+                'platform' => $this->platform
+            ]
+        );
 
-        if(empty($route)){
-            return true;
-        }
-
-        if(!$route->hasOption('permission_tag')){
+        if(empty($permission)){
             return true;
         }else{
-            return $this->can($route->getOption('permission_tag'),'and', $userAuth);
+            return $this->can($permission->getTag(),'and', $userAuth);
         }
     }
 

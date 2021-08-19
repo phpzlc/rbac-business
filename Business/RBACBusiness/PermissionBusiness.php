@@ -74,9 +74,6 @@ class PermissionBusiness extends AbstractBusiness
         $conn->beginTransaction();
 
         try {
-            /**
-             * @var Permission[] $permissions
-             */
             $permissions = [];
 
             //读取路由中的配置文件
@@ -89,12 +86,16 @@ class PermissionBusiness extends AbstractBusiness
                 $platform = $route->hasOption('platform') ? $route->getOption('platform') : '';
 
                 if(!empty($permission_tag) || !empty($permission_description) || !empty($permission_group)){
+                    if(empty($platform)){
+                        Errors::setErrorMessage('路由定义权限缺少 option platform to' . $route_name); return false;
+                    }
+
                     if(empty($permission_tag)){
                         Errors::setErrorMessage('路由定义权限缺少 option permission_tag to' . $route_name); return false;
                     }
 
-                    if(array_key_exists($permission_tag, $permissions)){
-                        $permission = $permissions[$permission_tag];
+                    if(array_key_exists($platform, $permissions) && array_key_exists($permission_tag, $permissions[$platform])){
+                        $permission = $permissions[$platform][$permission_tag];
                     }else{
                         $permission = $permissionRepository->findAssoc(['tag' => $permission_tag, 'platform' => $platform]);
                         if(empty($permission)){
@@ -107,7 +108,8 @@ class PermissionBusiness extends AbstractBusiness
                         $permission->setTag($permission_tag);
                         $permission->setDescription($permission_description);
                         $permission->setDataVersion($data_version);
-                        $permissions[$permission_tag] = $permission;
+
+                        $permissions[$platform][$permission_tag] = $permission;
                     }
 
                     $permission->addRoute($route_name);
@@ -148,7 +150,7 @@ class PermissionBusiness extends AbstractBusiness
 
             //查询数据库中版本值不对的规则进行删除
             $del_permissions = $permissionRepository->findAll([
-               'dataVersion' . Rule::RA_CONTRAST => ['<>', $data_version]
+                'dataVersion' . Rule::RA_CONTRAST => ['<>', $data_version]
             ]);
 
             $roleRepository = $this->getDoctrine()->getRepository('App:Role');
