@@ -2,6 +2,7 @@
 namespace App\Business\RBACBusiness;
 
 use App\Entity\Permission;
+use App\Entity\Role;
 use Doctrine\DBAL\Connection;
 use PHPZlc\PHPZlc\Abnormal\Errors;
 use PHPZlc\PHPZlc\Bundle\Business\AbstractBusiness;
@@ -31,6 +32,23 @@ class PermissionBusiness extends AbstractBusiness
 //                'permission_description' => '权限描述',
 //                'permission_group' => '权限分组',
 //                'routes' => [],
+//            ]
+        ];
+    }
+
+    /**
+     * 内置角色书写位置
+     *
+     * @return array[]
+     */
+    public function getBuiltRoles()
+    {
+        return [
+//            [
+//                'platform' => '平台',
+//                'role_tag' => '角色标识',
+//                'role_description' => '角色描述',
+//                'role_group' => '角色分组',
 //            ]
         ];
     }
@@ -164,6 +182,21 @@ class PermissionBusiness extends AbstractBusiness
                 }
 
                 $this->em->remove($del_permission);
+            }
+
+            //内置角色
+            foreach ($this->getBuiltRoles() as $builtRole){
+                $role = new Role();
+                $role
+                    ->setPlatform($builtRole['platform'])
+                    ->setTag($builtRole['role_tag'])
+                    ->setName($builtRole['role_description'])
+                    ->setGroupName($builtRole['role_group'])
+                    ->setDataVersion($data_version)
+                    ->setIsBuilt(true);
+
+                $roleBusiness->create($role, false);
+                Errors::clearError();
             }
 
             $this->em->flush();
