@@ -19,7 +19,7 @@
   ],
   "autoload": {
     "psr-4": {
-      "PHPZlc\\rbacBusiness\\": "src/"
+      "PHPZlc\\RBACBusiness\\": "src/"
     }
   },
   "require": {
