@@ -49,6 +49,8 @@ class PermissionBusiness extends AbstractBusiness
 //                'role_tag' => '角色标识',
 //                'role_description' => '角色描述',
 //                'role_group' => '角色分组',
+//                'permission_tags' => [],
+//                'contain_role_tags' => []
 //            ]
         ];
     }
@@ -194,6 +196,18 @@ class PermissionBusiness extends AbstractBusiness
                     ->setGroupName($builtRole['role_group'])
                     ->setDataVersion($data_version)
                     ->setIsBuilt(true);
+                
+                $permission_ids = [];
+                foreach ($builtRole['permission_tags'] as $permission_tag){
+                    $permission_ids[] = $permissionRepository->findAssoc(['tag' => $permission_tag, 'platform' => $role->getPlatform()])->getId();
+                }
+                $role->setPermissionIds($permission_ids);
+
+                $contain_role_ids = [];
+                foreach ($builtRole['contain_role_tags'] as $contain_role_tag){
+                    $contain_role_ids[] = $roleRepository->findAssoc(['tag' => $contain_role_tag, 'platform' => $role->getPlatform()])->getId();
+                }
+                $role->setContainRoleIds($contain_role_ids);
 
                 $roleBusiness->create($role, false);
                 Errors::clearError();
