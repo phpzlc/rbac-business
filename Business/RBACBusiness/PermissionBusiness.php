@@ -16,10 +16,10 @@ class PermissionBusiness extends AbstractBusiness
      * 可以通过路由配置权限；
      * 在路由下方追加
     options:
-    platform: platform
-    permission_group: 权限分组
-    permission_tag: 权限标识
-    permission_description: 权限描述
+        platform: platform
+        permission_group: 权限分组
+        permission_tag: 权限标识
+        permission_description: 权限描述
      *
      * @return array[]
      */

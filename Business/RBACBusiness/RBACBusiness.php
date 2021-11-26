@@ -61,20 +61,32 @@ class RBACBusiness extends AbstractBusiness
             }
         }
 
-        $roles = $this->getUserAllRoles($userAuth);
-
         $permissions = [];
 
-        foreach ($roles as $role){
-            if(!empty($role->getPermissionIds())) {
-                $rolePermissions = $this->getDoctrine()->getRepository('App:Permission')->findAll([
-                    'platform' => $this->platform,
-                    'id' . Rule::RA_IN => SQL::in($role->getPermissionIds())
-                ]);
-                foreach ($rolePermissions as $permission){
-                    if(!array_key_exists($permission->getTag(), $permissions)){
-                        $permissions[$permission->getTag()] = 1;
+        if(!$this->getIsSuper()) {
+            $roles = $this->getUserAllRoles($userAuth);
+
+            foreach ($roles as $role){
+                if(!empty($role->getPermissionIds())) {
+                    $rolePermissions = $this->getDoctrine()->getRepository('App:Permission')->findAll([
+                        'platform' => $this->platform,
+                        'id' . Rule::RA_IN => SQL::in($role->getPermissionIds())
+                    ]);
+                    foreach ($rolePermissions as $permission){
+                        if(!array_key_exists($permission->getTag(), $permissions)){
+                            $permissions[$permission->getTag()] = 1;
+                        }
                     }
+                }
+            }
+        }else{
+            $rolePermissions = $this->getDoctrine()->getRepository('App:Permission')->findAll([
+                'platform' => $this->platform
+            ]);
+
+            foreach ($rolePermissions as $permission) {
+                if (!array_key_exists($permission->getTag(), $permissions)) {
+                    $permissions[$permission->getTag()] = 1;
                 }
             }
         }
@@ -231,6 +243,8 @@ class RBACBusiness extends AbstractBusiness
     public function menusFilter($menus, UserAuth $userAuth = null, $refresh_cache = false)
     {
         $userAuth = $this->getUserAuth($userAuth);
+
+        $this->get('twig')->addGlobal('userPermissions', $this->getUserAllPermissions($userAuth));
 
         if(!$refresh_cache) {
             $cache = $this->get('session')->get($this->getCacheMenusSessionName($userAuth));
