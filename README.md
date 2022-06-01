@@ -6,4 +6,4 @@
 
 ## 技术文档
 
-[技术文档](https://phpzlc.com/doc/module/rbac-business)
+[技术文档](https://phpzlc.com/doc/zh-CN/rbac-business)
