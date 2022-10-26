@@ -68,7 +68,7 @@ class RBACBusiness extends AbstractBusiness
 
             foreach ($roles as $role){
                 if(!empty($role->getPermissionIds())) {
-                    $rolePermissions = $this->getDoctrine()->getRepository('App:Permission')->findAll([
+                    $rolePermissions = $this->getDoctrine()->getRepository(Permission::class)->findAll([
                         'platform' => $this->platform,
                         'id' . Rule::RA_IN => SQL::in($role->getPermissionIds())
                     ]);
@@ -80,7 +80,7 @@ class RBACBusiness extends AbstractBusiness
                 }
             }
         }else{
-            $rolePermissions = $this->getDoctrine()->getRepository('App:Permission')->findAll([
+            $rolePermissions = $this->getDoctrine()->getRepository(Permission::class)->findAll([
                 'platform' => $this->platform
             ]);
 
@@ -100,7 +100,7 @@ class RBACBusiness extends AbstractBusiness
     {
         $userAuth = $this->getUserAuth($userAuth);
 
-        $userRoleRepository = $this->getDoctrine()->getRepository('App:UserAuthRole');
+        $userRoleRepository = $this->getDoctrine()->getRepository(UserAuthRole::class);
 
         /**
          * @var UserAuthRole[] $userRoles
@@ -128,7 +128,7 @@ class RBACBusiness extends AbstractBusiness
         if(!array_key_exists($role->getId(), $roles)){
             $roles[$role->getTag()] = $role;
             if(!empty($role->getContainRoleIds())){
-                $containRoles = $this->getDoctrine()->getRepository('App:Role')->findAll(['platform' => $this->platform, 'id' . Rule::RA_IN => SQL::in($role->getContainRoleIds())]);
+                $containRoles = $this->getDoctrine()->getRepository(Role::class)->findAll(['platform' => $this->platform, 'id' . Rule::RA_IN => SQL::in($role->getContainRoleIds())]);
                 foreach ($containRoles as $containRole){
                     $this->pushRoles($roles, $containRole);
                 }
@@ -147,7 +147,7 @@ class RBACBusiness extends AbstractBusiness
         /**
          * @var Permission $permission
          */
-        $permission = $this->em->getRepository('App:Permission')->findAssoc(
+        $permission = $this->em->getRepository(Permission::class)->findAssoc(
             [
                 'routes' . Rule::RA_LIKE => '%"' . $route .'"%',
                 'platform' => $this->platform

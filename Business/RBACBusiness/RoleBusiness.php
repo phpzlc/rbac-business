@@ -4,6 +4,7 @@ namespace App\Business\RBACBusiness;
 
 use App\Entity\Permission;
 use App\Entity\Role;
+use App\Entity\UserAuthRole;
 use PHPZlc\PHPZlc\Abnormal\Errors;
 use PHPZlc\PHPZlc\Bundle\Business\AbstractBusiness;
 use PHPZlc\PHPZlc\Doctrine\ORM\Rule\Rule;
@@ -14,7 +15,7 @@ class RoleBusiness extends AbstractBusiness
     {
         if(parent::validator($class)){
            if($class instanceof Role){
-               $roleId = $this->getDoctrine()->getRepository('App:Role')->findAssoc([
+               $roleId = $this->getDoctrine()->getRepository(Role::class)->findAssoc([
                   'tag' => $class->getTag(),
                   'platform' => $class->getPlatform()
                ]);
@@ -23,7 +24,7 @@ class RoleBusiness extends AbstractBusiness
                    Errors::setErrorMessage('角色标识已存在'); return false;
                }
 
-               $role = $this->getDoctrine()->getRepository('App:Role')->findAssoc([
+               $role = $this->getDoctrine()->getRepository(Role::class)->findAssoc([
                    'name' => $class->getName(),
                    'platform' => $class->getPlatform()
                ]);
@@ -167,13 +168,13 @@ class RoleBusiness extends AbstractBusiness
     public function del(Role $role, $is_flush = true)
     {
         //获取该角色在哪些角色中使用；如果有使用情况就移除
-        $useRoles = $this->getDoctrine()->getRepository('App:Role')->findAll(['contain_role_ids' . Rule::RA_LIKE => $role->getId()]);
+        $useRoles = $this->getDoctrine()->getRepository(Role::class)->findAll(['contain_role_ids' . Rule::RA_LIKE => $role->getId()]);
         foreach ($useRoles as $useRole){
             $this->removeContainRole($useRole, $role, false);
         }
 
         //获取角色被哪些用户使用过
-        $userRoles = $this->getDoctrine()->getRepository('App:UserAuthRole')->findAll(['role_id' => $role->getId()]);
+        $userRoles = $this->getDoctrine()->getRepository(UserAuthRole::class)->findAll(['role_id' => $role->getId()]);
         foreach ($userRoles as $userRole){
             $this->em->remove($userRole);
         }
