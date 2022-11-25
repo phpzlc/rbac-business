@@ -99,6 +99,10 @@ class PermissionBusiness extends AbstractBusiness
             //读取路由中的配置文件
             $routeCollection = $this->get('router')->getRouteCollection();
 
+            if(empty($routeCollection->all())){
+                throw new \Exception('路由缓存读取失败');
+            }
+
             foreach ($routeCollection->all() as $route_name => $route){
                 $permission_tag = $route->hasOption('permission_tag') ? $route->getOption('permission_tag') : '';
                 $permission_description = $route->hasOption('permission_description') ? $route->getOption('permission_description') : '';
