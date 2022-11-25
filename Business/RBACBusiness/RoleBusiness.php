@@ -50,7 +50,6 @@ class RoleBusiness extends AbstractBusiness
 
         if($is_flush){
             $this->em->flush();
-            $this->em->clear();
         }
 
         return true;
@@ -64,7 +63,6 @@ class RoleBusiness extends AbstractBusiness
 
         if($is_flush){
             $this->em->flush();
-            $this->em->clear();
         }
 
         return true;
@@ -87,7 +85,6 @@ class RoleBusiness extends AbstractBusiness
 
         if($is_flush){
             $this->em->flush();
-            $this->em->clear();
         }
 
         return true;
@@ -111,7 +108,6 @@ class RoleBusiness extends AbstractBusiness
 
         if($is_flush) {
             $this->em->flush();
-            $this->em->clear();
         }
 
         return true;
@@ -135,7 +131,6 @@ class RoleBusiness extends AbstractBusiness
 
         if($is_flush) {
             $this->em->flush();
-            $this->em->clear();
         }
 
         return true;
@@ -159,7 +154,6 @@ class RoleBusiness extends AbstractBusiness
 
         if($is_flush) {
             $this->em->flush();
-            $this->em->clear();
         }
 
         return true;
@@ -183,7 +177,6 @@ class RoleBusiness extends AbstractBusiness
 
         if($is_flush) {
             $this->em->flush();
-            $this->em->clear();
         }
 
         return true;

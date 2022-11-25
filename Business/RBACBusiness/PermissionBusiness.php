@@ -165,7 +165,6 @@ class PermissionBusiness extends AbstractBusiness
             }
 
             $this->em->flush();
-            $this->em->clear();
 
 
             //查询数据库中版本值不对的规则进行删除
@@ -178,7 +177,7 @@ class PermissionBusiness extends AbstractBusiness
 
             foreach ($del_permissions as $del_permission){
                 //获取该权限在哪些角色中使用;如果有使用情况就移除
-                $roles = $roleRepository->findAll(['permission_ids' . Rule::RA_LIKE => $del_permission->getId()]);
+                $roles = $roleRepository->findAll(['permission_ids' . Rule::RA_LIKE => '%' . $del_permission->getId() .'%']);
                 foreach ($roles as $role){
                     $roleBusiness->removePermission($role, $del_permission, false);
                 }
@@ -214,7 +213,6 @@ class PermissionBusiness extends AbstractBusiness
             }
 
             $this->em->flush();
-            $this->em->clear();
 
             $conn->commit();
 
