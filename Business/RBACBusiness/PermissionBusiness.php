@@ -59,7 +59,7 @@ class PermissionBusiness extends AbstractBusiness
     {
         if(parent::validator($class)){
             if($class instanceof Permission){
-                $permission = $this->getDoctrine()->getRepository(Permission::class)->findAssoc([
+                $permission = $this->em->getRepository(Permission::class)->findAssoc([
                     'tag' => $class->getTag(),
                     'platform' => $class->getPlatform(),
                     'data_version' => $class->getDataVersion()
@@ -84,12 +84,12 @@ class PermissionBusiness extends AbstractBusiness
         //一个路由只能绑定一个页面标识；页面本身的路由名就是其页面标识
 
         $data_version = time();
-        $permissionRepository = $this->getDoctrine()->getRepository(Permission::class);
+        $permissionRepository = $this->em->getRepository(Permission::class);
 
         /**
          * @var Connection $conn
          */
-        $conn = $this->getDoctrine()->getConnection();
+        $conn = $this->em->getConnection();
 
         $conn->beginTransaction();
 
@@ -176,7 +176,7 @@ class PermissionBusiness extends AbstractBusiness
                 'dataVersion' . Rule::RA_CONTRAST => ['<>', $data_version]
             ]);
 
-            $roleRepository = $this->getDoctrine()->getRepository(Role::class);
+            $roleRepository = $this->em->getRepository(Role::class);
             $roleBusiness = new RoleBusiness($this->container);
 
             foreach ($del_permissions as $del_permission){

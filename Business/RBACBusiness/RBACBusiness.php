@@ -68,7 +68,7 @@ class RBACBusiness extends AbstractBusiness
 
             foreach ($roles as $role){
                 if(!empty($role->getPermissionIds())) {
-                    $rolePermissions = $this->getDoctrine()->getRepository(Permission::class)->findAll([
+                    $rolePermissions = $this->em->getRepository(Permission::class)->findAll([
                         'platform' => $this->platform,
                         'id' . Rule::RA_IN => SQL::in($role->getPermissionIds())
                     ]);
@@ -80,7 +80,7 @@ class RBACBusiness extends AbstractBusiness
                 }
             }
         }else{
-            $rolePermissions = $this->getDoctrine()->getRepository(Permission::class)->findAll([
+            $rolePermissions = $this->em->getRepository(Permission::class)->findAll([
                 'platform' => $this->platform
             ]);
 
@@ -100,7 +100,7 @@ class RBACBusiness extends AbstractBusiness
     {
         $userAuth = $this->getUserAuth($userAuth);
 
-        $userRoleRepository = $this->getDoctrine()->getRepository(UserAuthRole::class);
+        $userRoleRepository = $this->em->getRepository(UserAuthRole::class);
 
         /**
          * @var UserAuthRole[] $userRoles
@@ -128,7 +128,7 @@ class RBACBusiness extends AbstractBusiness
         if(!array_key_exists($role->getId(), $roles)){
             $roles[$role->getTag()] = $role;
             if(!empty($role->getContainRoleIds())){
-                $containRoles = $this->getDoctrine()->getRepository(Role::class)->findAll(['platform' => $this->platform, 'id' . Rule::RA_IN => SQL::in($role->getContainRoleIds())]);
+                $containRoles = $this->em->getRepository(Role::class)->findAll(['platform' => $this->platform, 'id' . Rule::RA_IN => SQL::in($role->getContainRoleIds())]);
                 foreach ($containRoles as $containRole){
                     $this->pushRoles($roles, $containRole);
                 }
