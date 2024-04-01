@@ -3,70 +3,48 @@
 namespace App\Entity;
 
 use App\Repository\RoleRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use PHPZlc\PHPZlc\Doctrine\SortIdGenerator;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Entity(repositoryClass=RoleRepository::class)
- * @ORM\Table(name="role", options={"comment": "角色表"})
- */
+#[ORM\Entity(repositoryClass: RoleRepository::class)]
+#[ORM\Table(name: "role", options: ["comment" => "角色表"])]
 class Role
 {
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="id", type="string")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     * @ORM\CustomIdGenerator(class="PHPZlc\PHPZlc\Doctrine\SortIdGenerator")
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\Column(name: "id", type: "string")]
+    #[ORM\GeneratedValue(strategy: "CUSTOM")]
+    #[ORM\CustomIdGenerator(class: SortIdGenerator::class)]
+    private ?string $id = null;
 
-    /**
-     * @var string
-     *
-     * @Assert\NotBlank(message="角色标识不能为空")
-     * @ORM\Column(name="tag", type="string", options={"comment":"角色平台内唯一标识"})
-     */
-    private $tag;
+    #[Assert\NotBlank(message: "角色标识不能为空")]
+    #[ORM\Column(type: "string", options: ["comment" => "角色平台内唯一标识"])]
+    private ?string $tag = null;
 
-    /**
-     * @Assert\NotBlank(message="角色名不能为空")
-     * @ORM\Column(name="name", type="string", options={"comment":"角色名"})
-     */
-    private $name;
+    #[Assert\NotBlank(message: "角色名不能为空")]
+    #[ORM\Column(type: "string", options: ["comment" => "角色名"])]
+    private ?string $name = null;
 
-    /**
-     * @Assert\NotBlank(message="所属平台不能为空")
-     * @ORM\Column(name="platform", type="string", options={"comment":"平台"})
-     */
-    private $platform;
+    #[Assert\NotBlank(message: "所属平台不能为空")]
+    #[ORM\Column(type: "string", options: ["comment" => "平台"])]
+    private ?string $platform = null;
 
-    /**
-     * @ORM\Column(name="group_name", type="string", nullable=true, options={"comment":"权限分组"})
-     */
-    private $groupName;
+    #[ORM\Column(name: "group_name", type: "string", nullable: true, options: ["comment" => "权限分组"])]
+    private ?string $groupName = null;
 
-    /**
-     * @ORM\Column(name="contain_role_ids", type="simple_array", nullable=true, options={"comment":"包含角色"})
-     */
-    private $containRoleIds;
+    #[ORM\Column(name: "contain_role_ids", type: "simple_array", nullable: true, options: ["comment" => "包含角色"])]
+    private ?array $containRoleIds = [];
 
-    /**
-     * @ORM\Column(name="permission_ids", type="simple_array", nullable=true, options={"comment":"角色权限"})
-     */
-    private $permissionIds;
+    #[ORM\Column(name: "permission_ids", type: "simple_array", nullable: true, options: ["comment" => "角色权限"])]
+    private ?array $permissionIds = [];
 
-    /**
-     * @ORM\Column(name="is_built", type="boolean", options={"comment":"是否内置", "default":"0"})
-     */
-    private $isBuilt = false;
+    #[ORM\Column(name:"is_built", type: "smallint", options: ["comment" => "是否内置", "default" => 0])]
+    private int $isBuilt = 0;
 
-    /**
-     * @Assert\NotBlank(message="数据版本不能为空")
-     * @ORM\Column(name="data_version", type="string", options={"comment":"数据版本"})
-     */
-    private $dataVersion;
+    #[Assert\NotBlank(message: "数据版本不能为空")]
+    #[ORM\Column(type: "string", options: ["comment" => "数据版本"])]
+    private ?string $dataVersion = null;
 
     public function getId(): ?string
     {
@@ -147,12 +125,12 @@ class Role
 
     public function getIsBuilt(): ?bool
     {
-        return $this->isBuilt;
+        return (bool)$this->isBuilt;
     }
 
     public function setIsBuilt(bool $isBuilt): self
     {
-        $this->isBuilt = $isBuilt;
+        $this->isBuilt = (int)$isBuilt;
 
         return $this;
     }

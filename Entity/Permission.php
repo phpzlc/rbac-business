@@ -3,60 +3,42 @@
 namespace App\Entity;
 
 use App\Repository\PermissionRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use PHPZlc\PHPZlc\Abnormal\Errors;
 use Symfony\Component\Validator\Constraints as Assert;
+use PHPZlc\PHPZlc\Doctrine\SortIdGenerator;
 
-/**
- * @ORM\Entity(repositoryClass=PermissionRepository::class)
- * @ORM\Table(name="permission", options={"comment":"权限表"})
- */
+#[ORM\Entity(repositoryClass: PermissionRepository::class)]
+#[ORM\Table(name: "permission", options: ["comment" => "权限表"])]
 class Permission
 {
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="id", type="string")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     * @ORM\CustomIdGenerator(class="PHPZlc\PHPZlc\Doctrine\SortIdGenerator")
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\Column(name: "id", type: "string")]
+    #[ORM\GeneratedValue(strategy: "CUSTOM")]
+    #[ORM\CustomIdGenerator(class: SortIdGenerator::class)]
+    private ?string $id = null;
 
-    /**
-     * @var string
-     *
-     * @Assert\NotBlank(message="权限标识不能为空")
-     * @ORM\Column(name="tag", type="string", options={"comment":"权限平台内唯一标识"})
-     */
-    private $tag;
+    #[Assert\NotBlank(message: "权限标识不能为空")]
+    #[ORM\Column(type: "string", options: ["comment" => "权限平台内唯一标识"])]
+    private ?string $tag = null;
 
-    /**
-     * @Assert\NotBlank(message="所属平台不能为空")
-     * @ORM\Column(name="platform", type="string", options={"comment":"平台"})
-     */
-    private $platform;
+    #[Assert\NotBlank(message: "所属平台不能为空")]
+    #[ORM\Column(type: "string", options: ["comment" => "平台"])]
+    private ?string $platform = null;
 
-    /**
-     * @ORM\Column(name="group_name", type="string", nullable=true, options={"comment":"权限分组"})
-     */
-    private $groupName;
+    #[ORM\Column(name: "group_name", type: "string", nullable: true, options: ["comment" => "权限分组"])]
+    private ?string $groupName = null;
 
-    /**
-     *  @ORM\Column(name="description", type="string", options={"comment":"权限描述"})
-     */
-    private $description;
+    #[ORM\Column(type: "string", options: ["comment" => "权限描述"])]
+    private ?string $description = null;
 
-    /**
-     * @ORM\Column(name="routes", type="array", options={"comment":"可以访问的路由"})
-     */
-    private $routes;
+    #[ORM\Column(type: "array", options: ["comment" => "可以访问的路由"])]
+    private array $routes = [];
 
-    /**
-     * @Assert\NotBlank(message="数据版本不能为空")
-     * @ORM\Column(name="data_version", type="string", options={"comment":"数据版本"})
-     */
-    private $dataVersion;
+    #[Assert\NotBlank(message: "数据版本不能为空")]
+    #[ORM\Column(type: "string", options: ["comment" => "数据版本"])]
+    private ?string $dataVersion = null;
 
     public function getId(): ?string
     {
