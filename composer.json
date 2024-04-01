@@ -23,7 +23,7 @@
     }
   },
   "require": {
-    "phpzlc/phpzlc": "2.*",
-    "phpzlc/auth-business": "2.*"
+    "phpzlc/phpzlc": "3.*",
+    "phpzlc/auth-business": "3.*"
   }
 }
