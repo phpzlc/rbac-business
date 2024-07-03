@@ -125,7 +125,7 @@ class RBACBusiness extends AbstractBusiness
 
     private function pushRoles(&$roles, Role $role)
     {
-        if(!array_key_exists($role->getId(), $roles)){
+        if(!array_key_exists($role->getTag(), $roles)){
             $roles[$role->getTag()] = $role;
             if(!empty($role->getContainRoleIds())){
                 $containRoles = $this->em->getRepository(Role::class)->findAll(['platform' => $this->platform, 'id' . Rule::RA_IN => SQL::in($role->getContainRoleIds())]);
